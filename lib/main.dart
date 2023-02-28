@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:profiele_web/roulette_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'calender_page.dart';
@@ -81,14 +82,7 @@ class MainContents extends StatelessWidget {
       case 1:
         return Calender();
       case 2:
-        return Expanded(
-          child: ColoredBox(
-            color: Colors.green[200]!,
-            child: const Center(
-              child: Text('Friends'),
-            ),
-          ),
-        );
+        return RoulettPage();
       default:
         return Profile();
     }
