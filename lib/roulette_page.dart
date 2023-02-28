@@ -30,7 +30,6 @@ class _RoulettPageState extends State<RoulettPage>
 
   @override
   void initState() {
-    // Initialize the controller
     final group = RouletteGroup.uniform(
       colors.length,
       colorBuilder: colors.elementAt,
@@ -41,41 +40,35 @@ class _RoulettPageState extends State<RoulettPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
+    return Expanded(
+      child: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Clockwise: ",
-                  style: TextStyle(fontSize: 18),
-                ),
-                Switch(
-                  value: _clockwise,
-                  onChanged: (onChanged) {
-                    setState(() {
-                      _controller.resetAnimation();
-                      _clockwise = !_clockwise;
-                    });
-                  },
-                ),
-              ],
+            const Text(
+              "家事名",
+              style: TextStyle(fontSize: 18),
+            ),
+            const SizedBox(
+              height: 30,
             ),
             MyRoulette(controller: _controller),
+            const SizedBox(
+              height: 45,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  _controller.rollTo(
+                    3,
+                    clockwise: _clockwise,
+                    offset: _random.nextDouble(),
+                  );
+                },
+                child: const Text("開始"))
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _controller.rollTo(
-          3,
-          clockwise: _clockwise,
-          offset: _random.nextDouble(),
-        ),
-        child: const Icon(Icons.refresh_rounded),
       ),
     );
   }
