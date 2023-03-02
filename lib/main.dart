@@ -19,7 +19,7 @@ Future<void> main() async {
   // final sharedUid = SharedPrefs.fetchUid().toString();
 // Ideal time to initialize
   await _initializeFirebaseAuth();
-  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+  //await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   runApp(const MyApp());
 
 //...
