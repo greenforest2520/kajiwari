@@ -1,7 +1,10 @@
-# 家事の割り振りをルーレットで決めるアプリ
+# kajiwari
 
-kajiwari
-(Flutter Web)
+家事の割り振りをルーレットで決めるアプリ
+(Flutter Webに挑戦)
+
+匿名ログインとパッケージ（カレンダー、ルーレット）をつかってみた
+
 
 ## Getting Started
 
