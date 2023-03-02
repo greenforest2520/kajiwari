@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "2169475060",
+    "project_id": "kajiwari-5ee2b",
+    "storage_bucket": "kajiwari-5ee2b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2169475060:android:26a09eb3493d27619fb3a1",
+        "android_client_info": {
+          "package_name": "com.example.profiele_web"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "2169475060-91ssppnmc5kq77r8m1su6lv0vgsl49be.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUv33tV8emElYWJhKRXk0bK1Xp7uz8UxE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "2169475060-91ssppnmc5kq77r8m1su6lv0vgsl49be.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -61,9 +61,9 @@ class _RoulettPageState extends State<RoulettPage>
             ElevatedButton(
                 onPressed: () {
                   _controller.rollTo(
-                    3,
+                    1,
                     clockwise: _clockwise,
-                    offset: _random.nextDouble(),
+                    offset: Random().nextDouble(),
                   );
                 },
                 child: const Text("開始"))
