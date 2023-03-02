@@ -64,6 +64,8 @@ class _CalenderState extends State<Calender> {
             markerBuilder: (context, date, events) {
               if (events.isNotEmpty) {
                 return _buildEventsMarker(date, events);
+              } else {
+                return null;
               }
             },
           ),
