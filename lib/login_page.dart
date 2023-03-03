@@ -155,7 +155,7 @@ class LoginPage extends StatelessWidget {
                                         'ログイン',
                                         textAlign: TextAlign.center,
                                       ))),
-                              SizedBox(
+                              const SizedBox(
                                 height: 15,
                               ),
                               ElevatedButton(
@@ -164,6 +164,9 @@ class LoginPage extends StatelessWidget {
                                       final userCredential = await FirebaseAuth
                                           .instance
                                           .signInAnonymously();
+                                      final String? uid =
+                                          userCredential.user?.uid;
+                                      await model.anonymousSignup(uid);
                                       print("ゲストログイン");
                                       if (userCredential != null) {
                                         Navigator.of(context).push(

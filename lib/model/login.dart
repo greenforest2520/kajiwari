@@ -54,7 +54,6 @@ class LoginModel extends ChangeNotifier {
       SharedPrefs.setPrefsInstance();
       SharedPrefs.setUid(uid);
       //print(uid);
-
     }
   }
 
@@ -84,6 +83,19 @@ class LoginModel extends ChangeNotifier {
       // print(role);
 
       role = sharedprefdocumentSnapshot["role"];
+    }
+  }
+
+  Future anonymousSignup(String? uid) async {
+    if (uid != null) {
+      print(uid);
+      final doc = FirebaseFirestore.instance.collection("UserInfo").doc(uid);
+      await doc.set({
+        "name": "guest",
+        "nigate": "皿洗い",
+        "ticket": 1,
+        "userId": uid,
+      });
     }
   }
 }

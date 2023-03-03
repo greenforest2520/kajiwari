@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:profiele_web/login_page.dart';
 import 'package:profiele_web/roulette_page.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -11,6 +12,8 @@ import 'firebase_options.dart';
 import 'calender_page.dart';
 import 'help_page.dart';
 import 'model/shared_prefs.dart';
+
+import 'model/userInfoModel.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -132,65 +135,75 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ColoredBox(
-        color: Colors.white30,
-        child: Center(
-          child: Column(
-            children: [
-              SizedBox(
-                height: 50,
-              ),
-              Text("userNameさん"),
-              SizedBox(
-                height: 50,
-              ),
-              CircleAvatar(
-                minRadius: 50,
-                child: Icon(
-                  Icons.mood,
-                  size: 70,
+    return ChangeNotifierProvider<UserInfoModel>(
+        create: (_) => UserInfoModel()..fetchUser(),
+        child: Consumer<UserInfoModel>(builder: (context, model, child) {
+          if (model == null) {
+            return const Padding(
+              padding: EdgeInsets.all(50),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return Expanded(
+            child: ColoredBox(
+              color: Colors.white30,
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Text(model.name + "さん"),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    CircleAvatar(
+                      minRadius: 50,
+                      child: Icon(
+                        Icons.mood,
+                        size: 70,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Text("今日のタスク"),
+                    ListTile(),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("ログアウト"),
+                                  content: const Text("ログアウトしますか"),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const LoginPage()));
+                                        },
+                                        child: const Text("Yes")),
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text("No"))
+                                  ],
+                                );
+                              });
+                        },
+                        child: Text("ログアウト")),
+                  ],
                 ),
               ),
-              SizedBox(
-                height: 50,
-              ),
-              Text("今日のタスク"),
-              ListTile(),
-              SizedBox(
-                height: 25,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("ログアウト"),
-                            content: const Text("ログアウトしますか"),
-                            actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const LoginPage()));
-                                  },
-                                  child: const Text("Yes")),
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text("No"))
-                            ],
-                          );
-                        });
-                  },
-                  child: Text("ログアウト")),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
+        }));
   }
 }
