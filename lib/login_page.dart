@@ -43,8 +43,8 @@ class LoginPage extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
+                              const Padding(
+                                padding: EdgeInsets.all(8.0),
                                 child: Text(
                                   "kajiwari",
                                   style: TextStyle(fontSize: 35),
@@ -161,14 +161,10 @@ class LoginPage extends StatelessWidget {
                               ElevatedButton(
                                   onPressed: () async {
                                     try {
-                                      final userCredential = await FirebaseAuth
-                                          .instance
-                                          .signInAnonymously();
-                                      final String? uid =
-                                          userCredential.user?.uid;
-                                      await model.anonymousSignup(uid);
+                                      await model.anonymousSignup();
+                                      await model.insertGroup();
                                       print("ゲストログイン");
-                                      if (userCredential != null) {
+                                      if (model.anonymousSignup() != null) {
                                         Navigator.of(context).push(
                                             MaterialPageRoute(
                                                 builder: (context) =>

@@ -150,26 +150,26 @@ class Profile extends StatelessWidget {
               child: Center(
                 child: Column(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
-                    Text(model.name + "さん"),
-                    SizedBox(
+                    Text("${model.name}さん"),
+                    const SizedBox(
                       height: 50,
                     ),
-                    CircleAvatar(
+                    const CircleAvatar(
                       minRadius: 50,
                       child: Icon(
                         Icons.mood,
                         size: 70,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 50,
                     ),
-                    Text("今日のタスク"),
+                    const Text("今日の割り振り家事"),
                     ListTile(),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
                     ElevatedButton(
@@ -198,7 +198,7 @@ class Profile extends StatelessWidget {
                                 );
                               });
                         },
-                        child: Text("ログアウト")),
+                        child: const Text("ログアウト")),
                   ],
                 ),
               ),

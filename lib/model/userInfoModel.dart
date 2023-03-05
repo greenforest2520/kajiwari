@@ -11,12 +11,12 @@ class UserInfoModel extends ChangeNotifier {
 
   late String? uid = currentUser?.uid;
 
-  void fetchUser() async {
+  Future<void> fetchUser() async {
     if (currentUser != null) {
       print(currentUser!.uid);
       final snapshot = await FirebaseFirestore.instance
           .collection("UserInfo")
-          .doc(currentUser?.uid)
+          .doc(uid)
           .get();
       final data = snapshot.data();
 
@@ -24,9 +24,14 @@ class UserInfoModel extends ChangeNotifier {
       nigate = data["nigate"];
       ticket = data["ticket"];
       userId = data["userId"];
-      print(name);
+      print(name + nigate + ticket.toString() + userId);
+      name = name;
+      nigate = nigate;
+      ticket = ticket;
+      userId = userId;
     } else if (uid == null) {
       return null;
     }
+    notifyListeners();
   }
 }
