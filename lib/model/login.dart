@@ -60,14 +60,6 @@ class LoginModel extends ChangeNotifier {
 
   Future checkRole() async {
     final sharedUid = SharedPrefs.fetchUid().toString();
-    // print("firebaseのuidは");
-    // print(uid);
-    // print(uid.runtimeType);
-    // print("shredprefeceのuidは");
-    // print(sharedUid);
-    // print(sharedUid.runtimeType);
-    // print("SharedUidは空じゃない");
-    // print(sharedUid.isNotEmpty);
 
     if (sharedUid == "" || sharedUid.isEmpty || sharedUid == null.toString()) {
       return;
@@ -79,9 +71,6 @@ class LoginModel extends ChangeNotifier {
               .collection("users")
               .doc(sharedUid)
               .get();
-
-      // print("このユーザーのfirebaseの値のroleは");
-      // print(role);
 
       role = sharedprefdocumentSnapshot["role"];
     }
