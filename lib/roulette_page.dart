@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:roulette/roulette.dart';
 import 'arrow.dart';
+import 'model/houseWork.dart';
 
 class RoulettPage extends StatefulWidget {
   const RoulettPage({Key? key}) : super(key: key);
@@ -19,6 +21,8 @@ class _RoulettPageState extends State<RoulettPage>
   late RouletteController _controller;
   bool _clockwise = true;
 
+  int index = 1;
+  String? kaji;
   final colors = <Color>[
     Colors.red.withAlpha(50),
     Colors.green.withAlpha(30),
@@ -40,37 +44,99 @@ class _RoulettPageState extends State<RoulettPage>
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "家事名",
-              style: TextStyle(fontSize: 18),
+    return ChangeNotifierProvider<HouseWorkModel>(
+        create: (_) => HouseWorkModel()..fetchHousework(),
+        child: Consumer<HouseWorkModel>(builder: (context, model, child) {
+          List<HouseWork>? housework = model.houseWork;
+          print("ハウスワーク:$housework");
+
+          if (model == null) {
+            return const Padding(
+              padding: EdgeInsets.all(50),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "家事選択",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  CupertinoButton.filled(
+                    child: Text("${housework?.kajiName}"),
+                    onPressed: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (_) => SizedBox(
+                          height: 250,
+                          width: double.infinity,
+                          child: CupertinoPicker(
+                            backgroundColor: Colors.white,
+                            itemExtent: model.houseWork!.length.toDouble(),
+                            scrollController:
+                                FixedExtentScrollController(initialItem: 1),
+                            children: model.houseWork!
+                                .map((text) => Text(text.kajiName))
+                                .toList(),
+                            onSelectedItemChanged: (index) {
+                              setState(() {
+                                this.index = index;
+                                final selectKaji = housework![index];
+                                print("kajiindex$selectKaji");
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  MyRoulette(controller: _controller),
+                  const SizedBox(
+                    height: 45,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        var result = _controller.rollTo(
+                          1,
+                          clockwise: _clockwise,
+                          offset: Random().nextDouble(),
+
+                          //結果出力
+                        );
+                      },
+                      child: const Text("開始")),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  SizedBox(
+                    height: 250,
+                    width: 250,
+                    child: TextField(
+                      controller: model.kajiController,
+                      decoration: const InputDecoration(
+                          labelText: "新しい家事を登録", hintText: "家事名…"),
+                      onChanged: (text) {
+                        model.setKaji(text);
+                        kaji = text;
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
-            const SizedBox(
-              height: 30,
-            ),
-            MyRoulette(controller: _controller),
-            const SizedBox(
-              height: 45,
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  _controller.rollTo(
-                    1,
-                    clockwise: _clockwise,
-                    offset: Random().nextDouble(),
-                  );
-                },
-                child: const Text("開始"))
-          ],
-        ),
-      ),
-    );
+          );
+        }));
   }
 
   @override
