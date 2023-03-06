@@ -47,10 +47,10 @@ class _RoulettPageState extends State<RoulettPage>
     return ChangeNotifierProvider<HouseWorkModel>(
         create: (_) => HouseWorkModel()..fetchHousework(),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          List<HouseWork>? housework = model.houseWork;
+          List<HouseWork>? housework = model.housework;
           print("ハウスワーク:$housework");
 
-          if (model == null) {
+          if (model.housework == null) {
             return const Padding(
               padding: EdgeInsets.all(50),
               child: Center(child: CircularProgressIndicator()),
@@ -71,7 +71,7 @@ class _RoulettPageState extends State<RoulettPage>
                     height: 30,
                   ),
                   CupertinoButton.filled(
-                    child: Text("${housework?.kajiName}"),
+                    child: Text("${model.kajiName}"),
                     onPressed: () {
                       showCupertinoModalPopup(
                         context: context,
@@ -80,16 +80,16 @@ class _RoulettPageState extends State<RoulettPage>
                           width: double.infinity,
                           child: CupertinoPicker(
                             backgroundColor: Colors.white,
-                            itemExtent: model.houseWork!.length.toDouble(),
+                            itemExtent: model.housework!.length.toDouble(),
                             scrollController:
                                 FixedExtentScrollController(initialItem: 1),
-                            children: model.houseWork!
-                                .map((text) => Text(text.kajiName))
+                            children: housework!
+                                .map((kaji) => Text(kaji.kajiName))
                                 .toList(),
                             onSelectedItemChanged: (index) {
                               setState(() {
                                 this.index = index;
-                                final selectKaji = housework![index];
+                                final selectKaji = housework[index];
                                 print("kajiindex$selectKaji");
                               });
                             },
@@ -129,6 +129,9 @@ class _RoulettPageState extends State<RoulettPage>
                       onChanged: (text) {
                         model.setKaji(text);
                         kaji = text;
+                      },
+                      onTap: () {
+                        model.registerKaji();
                       },
                     ),
                   )
