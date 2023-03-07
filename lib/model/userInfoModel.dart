@@ -7,6 +7,7 @@ class UserInfoModel extends ChangeNotifier {
   String nigate = "";
   int ticket = 0;
   String userId = "";
+  String groupName = "";
   final currentUser = FirebaseAuth.instance.currentUser;
 
   late String? uid = currentUser?.uid;
@@ -24,7 +25,8 @@ class UserInfoModel extends ChangeNotifier {
       nigate = data["nigate"];
       ticket = data["ticket"];
       userId = data["userId"];
-      print(name + nigate + ticket.toString() + userId);
+      groupName = data["groupName"];
+      print(name + nigate + ticket.toString() + userId + groupName);
       name = name;
       nigate = nigate;
       ticket = ticket;

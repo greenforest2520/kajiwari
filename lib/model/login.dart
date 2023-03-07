@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -22,8 +24,6 @@ class LoginModel extends ChangeNotifier {
   String? nigate;
   int? ticket;
   String? uid;
-
-  //LoginModel(this.name, this.nigate, this.ticket, this.uid);
 
   bool isLoading = false;
 
@@ -98,12 +98,13 @@ class LoginModel extends ChangeNotifier {
           FirebaseFirestore.instance.collection('UserInfo').doc(uid);
       return userdoc
           .set({
-            "name": "guest",
+            "name": "guest${Random().nextInt(100)}",
             "nigate": "皿洗い",
             "ticket": 1,
             "userId": uid,
+            "groupName": "guestGroup" //widgetを作成してその選択したものをfetchしてきてその情報を入れる
           })
-          .then((value) => print("情報追加成功"))
+          .then((value) => print("情報追加成功:{$name$nigate$ticket$uid"))
           .catchError((error) => print("追加失敗: $error"));
     }
   }
@@ -111,13 +112,22 @@ class LoginModel extends ChangeNotifier {
   Future<void> insertGroup() async {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     uid = userCredential.user?.uid;
-    final groupdoc =
-        FirebaseFirestore.instance.collection('UserGroup').doc("guestGroup");
-    return groupdoc
-        .update({
-          "member": FieldValue.arrayUnion([uid]),
-        })
-        .then((value) => print("グループ追加成功:$uid"))
-        .catchError((error) => print("追加失敗: $error"));
+    if (uid != null) {
+      print(uid);
+      final groupdoc =
+          FirebaseFirestore.instance.collection('UserGroup').doc("guestGroup");
+      final DocumentSnapshot usersnapshot = await FirebaseFirestore.instance
+          .collection("UserInfo")
+          .doc(uid!)
+          .get();
+      String? userName = usersnapshot["Name"];
+
+      return groupdoc
+          .update({
+            "member": FieldValue.arrayUnion([userName]),
+          })
+          .then((value) => print("グループ追加成功:$userName"))
+          .catchError((error) => print("追加失敗: $error"));
+    }
   }
 }

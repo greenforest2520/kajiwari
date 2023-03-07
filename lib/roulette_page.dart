@@ -70,33 +70,39 @@ class _RoulettPageState extends State<RoulettPage>
                   const SizedBox(
                     height: 30,
                   ),
-                  CupertinoButton.filled(
-                    child: Text("${model.kajiName}"),
-                    onPressed: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (_) => SizedBox(
-                          height: 250,
-                          width: double.infinity,
-                          child: CupertinoPicker(
-                            backgroundColor: Colors.white,
-                            itemExtent: model.housework!.length.toDouble(),
-                            scrollController:
-                                FixedExtentScrollController(initialItem: 1),
-                            children: housework!
-                                .map((kaji) => Text(kaji.kajiName))
-                                .toList(),
-                            onSelectedItemChanged: (index) {
-                              setState(() {
-                                this.index = index;
-                                final selectKaji = housework[index];
-                                print("kajiindex$selectKaji");
-                              });
-                            },
+                  SizedBox(
+                    width: 250,
+                    child: CupertinoButton.filled(
+                      child: Text("${housework![index].kajiName}"),
+                      onPressed: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (_) => SizedBox(
+                            height: 350,
+                            width: double.infinity,
+                            child: CupertinoPicker(
+                              backgroundColor: Colors.grey,
+                              itemExtent: housework.length.toDouble(),
+                              scrollController:
+                                  FixedExtentScrollController(initialItem: 1),
+                              children: housework
+                                  .map((kaji) => Text(
+                                        kaji.kajiName,
+                                        style: const TextStyle(fontSize: 32),
+                                      ))
+                                  .toList(),
+                              onSelectedItemChanged: (index) {
+                                setState(() {
+                                  this.index = index;
+                                  String selectKaji = housework[index].kajiName;
+                                  print("kajiindex$selectKaji");
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(
                     height: 30,
@@ -120,7 +126,7 @@ class _RoulettPageState extends State<RoulettPage>
                     height: 50,
                   ),
                   SizedBox(
-                    height: 250,
+                    height: 50,
                     width: 250,
                     child: TextField(
                       controller: model.kajiController,
@@ -130,11 +136,17 @@ class _RoulettPageState extends State<RoulettPage>
                         model.setKaji(text);
                         kaji = text;
                       },
-                      onTap: () {
-                        model.registerKaji();
-                      },
                     ),
-                  )
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        model.registerKaji(model.kaji, model.groupId);
+                      },
+                      child: const Text("決定"))
+                  //処理がうまくいけばshowdialogしてテキストを消す
                 ],
               ),
             ),

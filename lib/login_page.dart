@@ -50,53 +50,53 @@ class LoginPage extends StatelessWidget {
                                   style: TextStyle(fontSize: 35),
                                 ),
                               ),
-                              TextField(
-                                controller: model.mailController,
-                                decoration:
-                                    const InputDecoration(hintText: "Email..."),
-                                onChanged: (text) {
-                                  model.setEmail(text);
-                                },
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              TextField(
-                                obscureText: true,
-                                controller: model.passwordController,
-                                decoration: const InputDecoration(
-                                    hintText: "Password..."),
-                                onChanged: (text) {
-                                  model.setPassword(text);
-                                },
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text("新規登録は"),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    RegistrationPage()));
-                                      },
-                                      child: const Text("こちら"),
-                                    )
-                                  ]),
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const ResetPasswordForm()));
-                                  },
-                                  child: const Text("パスワードを忘れた方")),
+                              // TextField(
+                              //   controller: model.mailController,
+                              //   decoration:
+                              //       const InputDecoration(hintText: "Email..."),
+                              //   onChanged: (text) {
+                              //     model.setEmail(text);
+                              //   },
+                              // ),
+                              // const SizedBox(
+                              //   height: 10,
+                              // ),
+                              // TextField(
+                              //   obscureText: true,
+                              //   controller: model.passwordController,
+                              //   decoration: const InputDecoration(
+                              //       hintText: "Password..."),
+                              //   onChanged: (text) {
+                              //     model.setPassword(text);
+                              //   },
+                              // ),
+                              // const SizedBox(
+                              //   height: 20,
+                              // ),
+                              // Row(
+                              //     mainAxisAlignment: MainAxisAlignment.center,
+                              //     children: [
+                              //       const Text("新規登録は"),
+                              //       TextButton(
+                              //         onPressed: () {
+                              //           Navigator.push(
+                              //               context,
+                              //               MaterialPageRoute(
+                              //                   builder: (context) =>
+                              //                       RegistrationPage()));
+                              //         },
+                              //         child: const Text("こちら"),
+                              //       )
+                              //     ]),
+                              // TextButton(
+                              //     onPressed: () {
+                              //       Navigator.push(
+                              //           context,
+                              //           MaterialPageRoute(
+                              //               builder: (context) =>
+                              //                   const ResetPasswordForm()));
+                              //     },
+                              //     child: const Text("パスワードを忘れた方")),
                               const SizedBox(
                                 height: 30,
                               ),
