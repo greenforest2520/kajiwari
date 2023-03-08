@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:profiele_web/model/shared_prefs.dart';
 
+import 'dart:math' as math;
+
 class LoginModel extends ChangeNotifier {
   final mailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -26,6 +28,15 @@ class LoginModel extends ChangeNotifier {
   String? uid;
 
   bool isLoading = false;
+
+  final colors = <Color>[
+    Colors.red.withAlpha(50),
+    Colors.green.withAlpha(30),
+    Colors.blue.withAlpha(70),
+    Colors.yellow.withAlpha(90),
+    Colors.amber.withAlpha(50),
+    Colors.indigo.withAlpha(70),
+  ];
 
   void startLoading() {
     isLoading = true;
@@ -91,6 +102,7 @@ class LoginModel extends ChangeNotifier {
   Future<void> anonymousSignup() async {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     uid = userCredential.user?.uid;
+    String? mycolor = colors[math.Random().nextInt(colors.length)].toString();
     print(uid);
     if (uid != null) {
       print("アノニマス$uid");
@@ -102,6 +114,7 @@ class LoginModel extends ChangeNotifier {
             "nigate": "皿洗い",
             "ticket": 1,
             "userId": uid,
+            "myColor": mycolor,
             "groupName": "guestGroup" //widgetを作成してその選択したものをfetchしてきてその情報を入れる
           })
           .then((value) => print("情報追加成功:{$name$nigate$ticket$uid"))
@@ -118,9 +131,9 @@ class LoginModel extends ChangeNotifier {
           FirebaseFirestore.instance.collection('UserGroup').doc("guestGroup");
       final DocumentSnapshot usersnapshot = await FirebaseFirestore.instance
           .collection("UserInfo")
-          .doc(uid!)
+          .doc(uid)
           .get();
-      String? userName = usersnapshot["Name"];
+      String? userName = usersnapshot["name"];
 
       return groupdoc
           .update({

@@ -163,6 +163,11 @@ class LoginPage extends StatelessWidget {
                                     try {
                                       await model.anonymousSignup();
                                       await model.insertGroup();
+                                      // Future.delayed(Duration(seconds: 1), () {
+                                      //   print("1秒後に実行");
+
+                                      // });
+
                                       print("ゲストログイン");
                                       if (model.anonymousSignup() != null) {
                                         Navigator.of(context).push(

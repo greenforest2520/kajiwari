@@ -15,7 +15,7 @@ class RoulettPage extends StatefulWidget {
 }
 
 class _RoulettPageState extends State<RoulettPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   static final _random = Random();
 
   late RouletteController _controller;
@@ -32,6 +32,8 @@ class _RoulettPageState extends State<RoulettPage>
     Colors.indigo.withAlpha(70),
   ];
 
+  final usersInfo = <List>[];
+
   @override
   void initState() {
     final group = RouletteGroup.uniform(
@@ -47,10 +49,14 @@ class _RoulettPageState extends State<RoulettPage>
     return ChangeNotifierProvider<HouseWorkModel>(
         create: (_) => HouseWorkModel()..fetchHousework(),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
+          String selectKaji = "";
           List<HouseWork>? housework = model.housework;
+          final usersInfo = housework;
+          RouletteGroup group = RouletteGroup(model.rouletteList);
+          _controller = RouletteController(vsync: this, group: group);
           print("ハウスワーク:$housework");
 
-          if (model.housework == null) {
+          if (housework == null) {
             return const Padding(
               padding: EdgeInsets.all(50),
               child: Center(child: CircularProgressIndicator()),
@@ -73,7 +79,9 @@ class _RoulettPageState extends State<RoulettPage>
                   SizedBox(
                     width: 250,
                     child: CupertinoButton.filled(
-                      child: Text("${housework![index].kajiName}"),
+                      child: model.housework != null
+                          ? Text("$selectKaji" /*"${housework[0].kajiName}"*/)
+                          : Text("データがありません"),
                       onPressed: () {
                         showCupertinoModalPopup(
                           context: context,
@@ -84,18 +92,24 @@ class _RoulettPageState extends State<RoulettPage>
                               backgroundColor: Colors.grey,
                               itemExtent: housework.length.toDouble(),
                               scrollController:
-                                  FixedExtentScrollController(initialItem: 1),
-                              children: housework
+                                  FixedExtentScrollController(initialItem: 0),
+                              children: model.housework!
                                   .map((kaji) => Text(
                                         kaji.kajiName,
                                         style: const TextStyle(fontSize: 32),
                                       ))
                                   .toList(),
                               onSelectedItemChanged: (index) {
-                                setState(() {
+                                model.fetchRouletteUser();
+                                setState(() async {
                                   this.index = index;
                                   String selectKaji = housework[index].kajiName;
                                   print("kajiindex$selectKaji");
+
+                                  group = RouletteGroup(model.rouletteList);
+                                  print("risuto${model.rouletteList}");
+                                  _controller = RouletteController(
+                                      vsync: this, group: group);
                                 });
                               },
                             ),
