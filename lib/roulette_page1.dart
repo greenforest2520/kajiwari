@@ -7,14 +7,14 @@ import 'package:roulette/roulette.dart';
 import 'arrow.dart';
 import 'model/houseWork.dart';
 
-class RoulettPage extends StatefulWidget {
-  const RoulettPage({Key? key}) : super(key: key);
+class RoulettPage1 extends StatefulWidget {
+  const RoulettPage1({Key? key}) : super(key: key);
 
   @override
-  State<RoulettPage> createState() => _RoulettPageState();
+  State<RoulettPage1> createState() => _RoulettPageState();
 }
 
-class _RoulettPageState extends State<RoulettPage>
+class _RoulettPageState extends State<RoulettPage1>
     with TickerProviderStateMixin {
   static final _random = Random();
 
@@ -49,7 +49,7 @@ class _RoulettPageState extends State<RoulettPage>
     return ChangeNotifierProvider<HouseWorkModel>(
         create: (_) => HouseWorkModel()..fetchHousework(),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          String selectKaji = "";
+          String? selectKaji = "洗濯";
           List<HouseWork>? housework = model.housework;
           final usersInfo = housework;
           // RouletteGroup group = RouletteGroup(model.rouletteList);
@@ -76,63 +76,52 @@ class _RoulettPageState extends State<RoulettPage>
                   const SizedBox(
                     height: 30,
                   ),
-                  SizedBox(
-                    width: 250,
-                    child: CupertinoButton.filled(
-                      child: model.housework != null
-                          ? Text("${housework[0].kajiName}")
-                          : Text("データがありません"),
-                      onPressed: () {
-                        showCupertinoModalPopup(
-                          context: context,
-                          builder: (_) => SizedBox(
-                            height: 350,
-                            width: double.infinity,
-                            child: CupertinoPicker(
-                              backgroundColor: Colors.grey,
-                              itemExtent: housework.length.toDouble(),
-                              scrollController:
-                                  FixedExtentScrollController(initialItem: 0),
-                              children: model.housework!
-                                  .map((kaji) => Text(
-                                        kaji.kajiName,
-                                        style: const TextStyle(fontSize: 32),
+                  ChangeNotifierProvider<HouseWorkModel>(
+                    create: (_) => HouseWorkModel()..fetchHousework(),
+                    child: Center(child: Consumer<HouseWorkModel>(
+                      builder: (context, model, child) {
+                        if (model.housework == null) {
+                          return const CircularProgressIndicator();
+                        } else {
+                          final List<DropdownMenuItem<String>> lists =
+                              model.housework!
+                                  .map((text) => DropdownMenuItem(
+                                        value: text.kajiName,
+                                        child: Text(text.kajiName),
                                       ))
-                                  .toList(),
-                              onSelectedItemChanged: (index) {
-                                model.fetchRouletteUser(selectKaji);
-                                setState(() async {
-                                  this.index = index;
-                                  String selectKaji = housework[index].kajiName;
-                                  print("kajiindex$selectKaji");
+                                  .toList();
+                          //debugPrint(model.housework.toString());
 
-                                  group = RouletteGroup(model.rouletteList);
-                                  print("risuto${model.rouletteList}");
-                                  _controller = RouletteController(
-                                      vsync: this, group: group);
-                                });
-                              },
-                            ),
-                          ),
-                        );
+                          return DropdownButton<String>(
+                              items: lists,
+                              value: selectKaji,
+                              onChanged: (String? value) {
+                                model.selectKaji(value);
+                                selectKaji = value;
+                                model.fetchRouletteUser(value);
+                              });
+                        }
                       },
-                    ),
+                    )),
                   ),
                   const SizedBox(
-                    height: 30,
+                    height: 50,
                   ),
+
                   MyRoulette(
-                    controller: _controller,
+                    controller: RouletteController(vsync: this, group: group),
                     selectkaji: selectKaji,
                   ),
+
                   const SizedBox(
-                    height: 45,
+                    height: 35,
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        var result = _controller.rollTo(
+                      onPressed: () async {
+                        await RouletteController(group: group, vsync: this)
+                            .rollTo(
                           1,
-                          clockwise: _clockwise,
+                          clockwise: true,
                           offset: Random().nextDouble(),
 
                           //結果出力
@@ -161,7 +150,6 @@ class _RoulettPageState extends State<RoulettPage>
                   ElevatedButton(
                       onPressed: () {
                         model.registerKaji(model.newkaji, model.groupId);
-                        kaji = "";
                       },
                       child: const Text("決定"))
                   //処理がうまくいけばshowdialogしてテキストを消す
@@ -179,8 +167,8 @@ class _RoulettPageState extends State<RoulettPage>
   }
 }
 
-class MyRoulette extends StatelessWidget {
-  const MyRoulette({
+class MyRoulette extends StatefulWidget {
+  MyRoulette({
     Key? key,
     required this.controller,
     required this.selectkaji,
@@ -190,30 +178,35 @@ class MyRoulette extends StatelessWidget {
   final String? selectkaji;
 
   @override
+  _MyRouletteState createState() => _MyRouletteState();
+}
+
+class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<HouseWorkModel>(
-        create: (_) => HouseWorkModel()..fetchRouletteUser(selectkaji),
+        create: (_) => HouseWorkModel()..fetchRouletteUser(widget.selectkaji),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          List<HouseWork>? housework = model.housework;
-
-          RouletteGroup group = RouletteGroup(model.rouletteList);
-
           //_controller = RouletteController(vsync: this, group: group);
+          final group = RouletteGroup(model.rouletteList
+              //colorBuilder: model.rouletteList.elementAt(4),
+              );
+
           return Stack(
             alignment: Alignment.topCenter,
             children: [
               SizedBox(
-                width: 150,
-                height: 150,
+                width: 300,
+                height: 300,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 30),
+                  padding: const EdgeInsets.all(30),
                   child: Roulette(
                     // Provide controller to update its state
-                    controller: controller,
+                    controller: RouletteController(group: group, vsync: this),
                     // Configure roulette's appearance
                     style: const RouletteStyle(
-                      dividerThickness: 4,
-                      textLayoutBias: .8,
+                      dividerThickness: 3,
+                      textLayoutBias: 0.9,
                       centerStickerColor: Color(0xFF45A3FA),
                     ),
                   ),

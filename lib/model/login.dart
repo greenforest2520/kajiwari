@@ -103,9 +103,9 @@ class LoginModel extends ChangeNotifier {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     uid = userCredential.user?.uid;
     String? mycolor = colors[math.Random().nextInt(colors.length)].toString();
-    print(uid);
+    //print(uid);
     if (uid != null) {
-      print("アノニマス$uid");
+      // print("アノニマス$uid");
       final userdoc =
           FirebaseFirestore.instance.collection('UserInfo').doc(uid);
       return userdoc
@@ -126,7 +126,7 @@ class LoginModel extends ChangeNotifier {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     uid = userCredential.user?.uid;
     if (uid != null) {
-      print(uid);
+      //print(uid);
       final groupdoc =
           FirebaseFirestore.instance.collection('UserGroup').doc("guestGroup");
       final DocumentSnapshot usersnapshot = await FirebaseFirestore.instance

@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:profiele_web/login_page.dart';
 import 'package:profiele_web/roulette_page.dart';
+import 'package:profiele_web/roulette_page1.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -121,7 +122,7 @@ class MainContents extends StatelessWidget {
       case 1:
         return Calender();
       case 2:
-        return RoulettPage();
+        return RoulettPage1();
       case 3:
         return HelpPage();
       default:

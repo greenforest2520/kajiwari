@@ -6,12 +6,12 @@ import 'package:roulette/roulette.dart';
 class HouseWork {
   String kajiName;
   String groupId;
-  HouseWork(this.kajiName, this.groupId);
+  HouseWork({required this.kajiName, required this.groupId});
 }
 
 class kajigroup {
   String groupId;
-  kajigroup(this.groupId);
+  kajigroup({required this.groupId});
 }
 
 class HouseWorkModel extends ChangeNotifier {
@@ -24,20 +24,21 @@ class HouseWorkModel extends ChangeNotifier {
   List<HouseWork>? housework;
   String? kajiName;
   String? groupId;
-  String? kaji;
+  String? newkaji;
+  String? selectkaji;
   List<kajigroup>? kajiGroupId;
   int index = 0;
   List<RouletteUnit> rouletteList = [];
 
-  void setKaji(String kaji) {
-    this.kaji = kaji;
+  void setKaji(String? kaji) {
+    newkaji = kaji;
     notifyListeners();
   }
 
-  void selectKaji(index) {
-    this.index = index;
-    String selectKaji = housework![index].kajiName;
-    print("kajiindex$selectKaji");
+  void selectKaji(value) {
+    selectkaji = value;
+    print("kajiindex$selectkaji");
+    notifyListeners();
   }
 
   void fetchHousework() async {
@@ -52,19 +53,18 @@ class HouseWorkModel extends ChangeNotifier {
       final String kajiName = data["kajiName"];
       final String groupId = data["groupId"];
 
-      print("map後$kajiName + $groupId");
-      notifyListeners();
-      return HouseWork(kajiName, groupId);
+      // print("map後$kajiName + $groupId");
+      return HouseWork(kajiName: kajiName, groupId: groupId);
     }).toList();
     this.housework = housework;
-
     notifyListeners();
+    debugPrint("fetch結果${housework.toString()}");
   }
 
   Future<void> fetchMyGroupId() async {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     String? uid = userCredential.user?.uid;
-    print(uid);
+    //print(uid);
     final userGroupsnapshot =
         await _userGroupCollection.where("member", arrayContains: uid).get();
     final List<kajigroup> kajigroupId =
@@ -72,30 +72,34 @@ class HouseWorkModel extends ChangeNotifier {
       Object? data = document.data()! as Map<String, dynamic>;
 
       final String groupId = document.reference.id;
-      print("グループID:$groupId");
+      //print("グループID:$groupId");
       notifyListeners();
-      return kajigroup(groupId);
+      return kajigroup(groupId: groupId);
     }).toList();
     kajiGroupId = kajigroupId;
 
     notifyListeners();
   }
 
-  Future<void> fetchRouletteUser() async {
+  Future<void> fetchRouletteUser(selectkaji) async {
     final myGroupsnapshot = await _userInfoCollection
-        .where("groupName", isEqualTo: "gusetGroup")
+        .where("groupName", isEqualTo: "guestGroup")
         .get();
+    print("ルーレットスナップショット$myGroupsnapshot");
+
     final List<RouletteUnit> roulettelist =
         myGroupsnapshot.docs.map((DocumentSnapshot document) {
       Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
       final String name = data["name"];
-      final double nigate = data["nigate"];
-      final Color mycolor = data["myColor"];
-      print("$name$nigate$mycolor");
-      return RouletteUnit(
-          text: name, color: mycolor, weight: nigate != kaji ? 0.4 : 0.5);
+      final String nigate = data["nigate"];
+      final String mycolor = data["myColor"];
+      print("ルーレット$name$nigate$mycolor");
+      return RouletteUnit.text(name,
+          color: Colors.red, weight: nigate != selectkaji ? 0.5 : 0.4);
     }).toList();
     rouletteList = roulettelist;
+
+    print("ルーレットリスト$roulettelist");
     notifyListeners();
   }
 
