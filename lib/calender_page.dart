@@ -82,6 +82,8 @@ class _CalenderState extends State<Calender> {
     );
   }
 
+  //historyに登録されているグループ全体の情報をとってきて表示。
+
   Widget _buildEventsMarker(DateTime date, List events) {
     return Positioned(
       right: 5,

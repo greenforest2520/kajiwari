@@ -74,7 +74,7 @@ class _MyWidgetState extends State<MyWidget> {
         children: [
           NavigationRail(
             extended: true,
-            minExtendedWidth: 200,
+            minExtendedWidth: 150,
             backgroundColor: Colors.grey,
             elevation: 5,
             useIndicator: true,
@@ -169,6 +169,7 @@ class Profile extends StatelessWidget {
                       height: 50,
                     ),
                     const Text("今日の割り振り家事"),
+                    //historyからカレントユーザーの情報をとってきてリスト表示。
                     ListTile(),
                     const SizedBox(
                       height: 25,

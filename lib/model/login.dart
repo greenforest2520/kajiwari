@@ -102,8 +102,9 @@ class LoginModel extends ChangeNotifier {
   Future<void> anonymousSignup() async {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     uid = userCredential.user?.uid;
-    String? mycolor = colors[math.Random().nextInt(colors.length)].toString();
-    //print(uid);
+    String? mycolor =
+        colors[math.Random().nextInt(colors.length)].value.toRadixString(16);
+    print(mycolor);
     if (uid != null) {
       // print("アノニマス$uid");
       final userdoc =

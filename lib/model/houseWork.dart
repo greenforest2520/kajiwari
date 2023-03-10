@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:roulette/roulette.dart';
+
+import '../roulette_page1.dart';
 
 class HouseWork {
   String kajiName;
@@ -29,6 +33,7 @@ class HouseWorkModel extends ChangeNotifier {
   List<kajigroup>? kajiGroupId;
   int index = 0;
   List<RouletteUnit> rouletteList = [];
+  List<RouletteGroup>? group;
 
   void setKaji(String? kaji) {
     newkaji = kaji;
@@ -87,19 +92,24 @@ class HouseWorkModel extends ChangeNotifier {
         .get();
     print("ルーレットスナップショット$myGroupsnapshot");
 
-    final List<RouletteUnit> roulettelist =
+    final List<RouletteUnit> roultteuint =
         myGroupsnapshot.docs.map((DocumentSnapshot document) {
       Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
       final String name = data["name"];
       final String nigate = data["nigate"];
       final String mycolor = data["myColor"];
+
       print("ルーレット$name$nigate$mycolor");
       return RouletteUnit.text(name,
-          color: Colors.red, weight: nigate != selectkaji ? 0.5 : 0.4);
+          color: Color(int.parse(mycolor, radix: 16)),
+          weight: nigate != selectkaji ? 0.5 : 0.4);
     }).toList();
-    rouletteList = roulettelist;
-
-    print("ルーレットリスト$roulettelist");
+    rouletteList = roultteuint;
+    roultteuint.asMap().entries.map((entry) {
+      int index = entry.key;
+    });
+    print("ルーレットリスト$roultteuint");
+    RouletteGroup group = RouletteGroup(rouletteList);
     notifyListeners();
   }
 

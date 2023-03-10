@@ -1,6 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roulette/roulette.dart';
@@ -112,22 +113,6 @@ class _RoulettPageState extends State<RoulettPage1>
                     controller: RouletteController(vsync: this, group: group),
                     selectkaji: selectKaji,
                   ),
-
-                  const SizedBox(
-                    height: 35,
-                  ),
-                  ElevatedButton(
-                      onPressed: () async {
-                        await RouletteController(group: group, vsync: this)
-                            .rollTo(
-                          1,
-                          clockwise: true,
-                          offset: Random().nextDouble(),
-
-                          //結果出力
-                        );
-                      },
-                      child: const Text("開始")),
                   const SizedBox(
                     height: 50,
                   ),
@@ -188,33 +173,92 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
         create: (_) => HouseWorkModel()..fetchRouletteUser(widget.selectkaji),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
           //_controller = RouletteController(vsync: this, group: group);
-          final group = RouletteGroup(model.rouletteList
-              //colorBuilder: model.rouletteList.elementAt(4),
-              );
+          final group = RouletteGroup(model.rouletteList);
+          final lettecontroller = RouletteController(vsync: this, group: group);
 
-          return Stack(
-            alignment: Alignment.topCenter,
+          return Column(
             children: [
-              SizedBox(
-                width: 300,
-                height: 300,
-                child: Padding(
-                  padding: const EdgeInsets.all(30),
-                  child: Roulette(
-                    // Provide controller to update its state
-                    controller: RouletteController(group: group, vsync: this),
-                    // Configure roulette's appearance
-                    style: const RouletteStyle(
-                      dividerThickness: 3,
-                      textLayoutBias: 0.9,
-                      centerStickerColor: Color(0xFF45A3FA),
+              Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Roulette(
+                        // Provide controller to update its state
+                        controller: lettecontroller,
+                        // Configure roulette's appearance
+                        style: const RouletteStyle(
+                          dividerThickness: 3,
+                          textLayoutBias: 0.9,
+                          centerStickerColor: Color(0xFF45A3FA),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const Arrow(),
+                ],
               ),
-              const Arrow(),
+              const SizedBox(
+                height: 35,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    var result = RandomUnion(group.units.length);
+                    print("押下後${group.units}:${group.totalWeights}");
+
+                    await lettecontroller
+                        .rollTo(
+                          result.randomValueInt,
+                          clockwise: true,
+                          offset: result.randomValueUnderPoint,
+                        )
+                        .then((_) => {
+                              // ルーレットが止まった時の処理
+                              debugPrint(result.randomValue.toString())
+                              //showdailogで決まった人を表示。その後OKボタンでfirestoreのhistoryに保存。
+                            });
+                    showDialog(
+                      context: context,
+                      //barrierDismissible: false,
+                      builder: (_) {
+                        return AlertDialog(
+                          title: const Text("登録完了"),
+                          content: const Text("家事分担の登録できました"),
+                          actions: [
+                            TextButton(
+                                child: const Text("OK"),
+                                onPressed: () =>
+                                    Navigator.of(context, rootNavigator: true)
+                                        .pop()),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text("開始")),
             ],
           );
         }));
+  }
+}
+
+class RandomUnion {
+  // ランダムな数値 例：最大値＝6 の場合 0.0 <= randomValue < 6.0
+  double randomValue = 0.0;
+
+  // ランダムな数値の整数部のみ
+  int randomValueInt = 0;
+  // ランダムな数値の小数点以下
+  double randomValueUnderPoint = 0.0;
+
+  /// コンストラクター
+  /// 最大値を渡す。例：最大値＝6 の場合 0.0 <= randomValue < 6.0
+  RandomUnion(int lessThanValue) {
+    randomValue = lessThanValue * Random().nextDouble();
+    randomValueInt = randomValue.toInt();
+    randomValueUnderPoint = randomValue - randomValueInt;
   }
 }
