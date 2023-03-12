@@ -125,4 +125,42 @@ class HouseWorkModel extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<void> fetchRouletteUserindex(selectkaji) async {
+    final myGroupsnapshot = await _userInfoCollection
+        .where("groupName", isEqualTo: "guestGroup")
+        .get();
+    print("ルーレットスナップショット$myGroupsnapshot");
+
+    final List<RouletteUnit> roultteuint =
+        myGroupsnapshot.docs.map((DocumentSnapshot document) {
+      Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+      final String name = data["name"];
+      final String nigate = data["nigate"];
+      final String mycolor = data["myColor"];
+
+      print("ルーレット$name$nigate$mycolor");
+      return RouletteUnit.text(name,
+          color: Color(int.parse(mycolor, radix: 16)),
+          weight: nigate != selectkaji ? 0.5 : 0.4);
+    }).toList();
+    rouletteList = roultteuint;
+    print("リストのインデックス表示${rouletteList.elementAt(1)}");
+
+    print("ルーレットリスト$roultteuint");
+    RouletteGroup group = RouletteGroup(rouletteList);
+    notifyListeners();
+  }
+
+  Future registerPIC(int result, String? kaji) async {
+    final picUnit = rouletteList.elementAt(result);
+    final picName = picUnit.text;
+    FirebaseFirestore.instance.collection("history").doc().set({
+      "data": Timestamp.now(),
+      "groupId": "guestGroup",
+      "isComplite": false,
+      "kajiName": kaji,
+      "userName": picName,
+    });
+  }
 }

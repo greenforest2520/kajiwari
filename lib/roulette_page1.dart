@@ -170,9 +170,9 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<HouseWorkModel>(
-        create: (_) => HouseWorkModel()..fetchRouletteUser(widget.selectkaji),
+        create: (_) =>
+            HouseWorkModel()..fetchRouletteUserindex(widget.selectkaji),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          //_controller = RouletteController(vsync: this, group: group);
           final group = RouletteGroup(model.rouletteList);
           final lettecontroller = RouletteController(vsync: this, group: group);
 
@@ -187,9 +187,7 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
                     child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: Roulette(
-                        // Provide controller to update its state
                         controller: lettecontroller,
-                        // Configure roulette's appearance
                         style: const RouletteStyle(
                           dividerThickness: 3,
                           textLayoutBias: 0.9,
@@ -207,7 +205,8 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
               ElevatedButton(
                   onPressed: () async {
                     var result = RandomUnion(group.units.length);
-                    print("押下後${group.units}:${group.totalWeights}");
+                    print(
+                        "押下後,グループユニット${group.units}:トータルウェイト${group.totalWeights}:結果の数${result.randomValueInt}:結果の数の少数${result.randomValueUnderPoint}");
 
                     await lettecontroller
                         .rollTo(
@@ -222,7 +221,7 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
                             });
                     showDialog(
                       context: context,
-                      //barrierDismissible: false,
+                      barrierDismissible: false,
                       builder: (_) {
                         return AlertDialog(
                           title: const Text("登録完了"),
@@ -230,9 +229,12 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
                           actions: [
                             TextButton(
                                 child: const Text("OK"),
-                                onPressed: () =>
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop()),
+                                onPressed: () {
+                                  model.registerPIC(
+                                      result.randomValueInt, widget.selectkaji);
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop();
+                                }),
                           ],
                         );
                       },
