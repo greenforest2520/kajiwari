@@ -193,7 +193,7 @@ class Profile extends StatelessWidget {
                           }
 
                           // snapshot.dataにデータが格納されていれば
-                          if (snapshot.hasData) {
+                          if (snapshot.hasData == false) {
                             return Center(
                                 child: Text(snapshot.error.toString()));
                           }

@@ -47,9 +47,10 @@ class UserInfoModel extends ChangeNotifier {
   Future<void> fetchMyPIC() async {
     final myPICSnapshot = await FirebaseFirestore.instance
         .collection("history")
-        .where("userName", arrayContains: name)
+        .where("userName", isEqualTo: name)
         //.where("date", isEqualTo: Timestamp.now())
         .get();
+    print("fetch名前$name");
     final List<History> todayPIC =
         myPICSnapshot.docs.map((DocumentSnapshot document) {
       Map<String, dynamic> data = document.data() as Map<String, dynamic>;
