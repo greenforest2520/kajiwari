@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:profiele_web/model/history.dart';
 
 class UserInfoModel extends ChangeNotifier {
   String name = "";
@@ -8,9 +9,15 @@ class UserInfoModel extends ChangeNotifier {
   int ticket = 0;
   String userId = "";
   String groupName = "";
+  bool? isComplite;
   final currentUser = FirebaseAuth.instance.currentUser;
+  List<History> todayPIC = [];
 
   late String? uid = currentUser?.uid;
+
+  void updateIsComplite() {
+    isComplite = true;
+  }
 
   Future<void> fetchUser() async {
     if (currentUser != null) {
@@ -36,4 +43,39 @@ class UserInfoModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Future<void> fetchMyPIC() async {
+    final myPICSnapshot = await FirebaseFirestore.instance
+        .collection("history")
+        .where("userName", arrayContains: name)
+        //.where("date", isEqualTo: Timestamp.now())
+        .get();
+    final List<History> todayPIC =
+        myPICSnapshot.docs.map((DocumentSnapshot document) {
+      Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+      final DateTime date = data["date"];
+      final bool isComplite = data["isComplite"];
+      final String groupId = data["groupId"];
+      final String kajiName = data["kajiName"];
+      final String userName = data["userName"];
+      return History(
+          date: date,
+          isComplite: isComplite,
+          groupId: groupId,
+          kajiName: kajiName,
+          userName: userName);
+    }).toList();
+    //print("${TimeOfDay.now()},${Timestamp.now().toDate()}");
+
+    this.todayPIC = todayPIC;
+    notifyListeners();
+
+    debugPrint("fetch結果${todayPIC.toString()}");
+  }
+
+  // Future<void> ComplitePIC() async {
+
+  //   await FirebaseFirestore.instance.collection("history").doc()
+  // }
 }

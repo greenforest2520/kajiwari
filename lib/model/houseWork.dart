@@ -152,15 +152,18 @@ class HouseWorkModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future registerPIC(int result, String? kaji) async {
+  Future registerPIC(int result, String? selectkaji) async {
+    print("$selectkaji");
     final picUnit = rouletteList.elementAt(result);
     final picName = picUnit.text;
-    FirebaseFirestore.instance.collection("history").doc().set({
-      "data": Timestamp.now(),
+    final doc = FirebaseFirestore.instance.collection("history").doc();
+    doc.set({
+      "date": Timestamp.now().toDate(),
       "groupId": "guestGroup",
       "isComplite": false,
-      "kajiName": kaji,
+      "kajiName": selectkaji,
       "userName": picName,
+      "PICId": doc.id,
     });
   }
 }

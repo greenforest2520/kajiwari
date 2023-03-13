@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:profiele_web/login_page.dart';
@@ -139,6 +140,8 @@ class Profile extends StatelessWidget {
     return ChangeNotifierProvider<UserInfoModel>(
         create: (_) => UserInfoModel()..fetchUser(),
         child: Consumer<UserInfoModel>(builder: (context, model, child) {
+          final todayPIC = model.todayPIC;
+          print("todayPIC$todayPIC");
           if (model == null) {
             return const Padding(
               padding: EdgeInsets.all(50),
@@ -170,7 +173,99 @@ class Profile extends StatelessWidget {
                     ),
                     const Text("今日の割り振り家事"),
                     //historyからカレントユーザーの情報をとってきてリスト表示。
-                    ListTile(),
+                    FutureBuilder(
+                        future: model.fetchMyPIC(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<void> snapshot) {
+                          // 通信中はローディングのぐるぐるを表示
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          // 通信が失敗した場合
+                          if (snapshot.hasError) {
+                            return Center(
+                              child: Text(snapshot.error.toString()),
+                            );
+                          }
+
+                          // snapshot.dataにデータが格納されていれば
+                          if (snapshot.hasData) {
+                            return Center(
+                                child: Text(snapshot.error.toString()));
+                          }
+
+                          return Center(
+                            child: SizedBox(
+                              height: 350,
+                              width: double.infinity,
+                              child: ListView.builder(
+                                itemCount: todayPIC.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  bool isComplite = todayPIC[index].isComplite;
+                                  int snapIndex =
+                                      todayPIC.indexOf(todayPIC[index]);
+                                  return ListTile(
+                                    title: Text(todayPIC[index].kajiName),
+                                    leading: isComplite == false
+                                        ? const Icon(
+                                            Icons.check_box_outline_blank)
+                                        : const Icon(Icons.check_box),
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (_) {
+                                            isComplite == true
+                                                ? AlertDialog(
+                                                    title: const Text("完了チェック"),
+                                                    content: const Text(
+                                                        "家事は完了しましたか？"),
+                                                    actions: [
+                                                      TextButton(
+                                                          child:
+                                                              const Text("Yes"),
+                                                          onPressed: () {
+                                                            final docId = model
+                                                                .todayPIC
+                                                                .elementAt(
+                                                                    index);
+
+                                                            Navigator.of(
+                                                                    context,
+                                                                    rootNavigator:
+                                                                        true)
+                                                                .pop();
+                                                          }),
+                                                      TextButton(
+                                                          child:
+                                                              const Text("No"),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context,
+                                                                    rootNavigator:
+                                                                        true)
+                                                                .pop();
+                                                          }),
+                                                    ],
+                                                  )
+                                                : AlertDialog(
+                                                    title: Text("完了済みです"),
+                                                  );
+                                            return AlertDialog(
+                                              title: Text("完了済みです"),
+                                            );
+                                          });
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          );
+                        }),
                     const SizedBox(
                       height: 25,
                     ),

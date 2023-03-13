@@ -50,12 +50,13 @@ class _RoulettPageState extends State<RoulettPage1>
     return ChangeNotifierProvider<HouseWorkModel>(
         create: (_) => HouseWorkModel()..fetchHousework(),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          String? selectKaji = "洗濯";
+          String? selectKaji = model.selectkaji;
           List<HouseWork>? housework = model.housework;
           final usersInfo = housework;
           // RouletteGroup group = RouletteGroup(model.rouletteList);
           // _controller = RouletteController(vsync: this, group: group);
           // print("ハウスワーク:$housework");
+
           RouletteGroup group = RouletteGroup(model.rouletteList);
           if (housework == null) {
             return const Padding(
@@ -63,6 +64,12 @@ class _RoulettPageState extends State<RoulettPage1>
               child: Center(child: CircularProgressIndicator()),
             );
           }
+          final List<DropdownMenuItem<String>> lists = model.housework!
+              .map((text) => DropdownMenuItem(
+                    value: text.kajiName,
+                    child: Text(text.kajiName),
+                  ))
+              .toList();
           return Expanded(
             child: Center(
               child: Column(
@@ -77,38 +84,17 @@ class _RoulettPageState extends State<RoulettPage1>
                   const SizedBox(
                     height: 30,
                   ),
-                  ChangeNotifierProvider<HouseWorkModel>(
-                    create: (_) => HouseWorkModel()..fetchHousework(),
-                    child: Center(child: Consumer<HouseWorkModel>(
-                      builder: (context, model, child) {
-                        if (model.housework == null) {
-                          return const CircularProgressIndicator();
-                        } else {
-                          final List<DropdownMenuItem<String>> lists =
-                              model.housework!
-                                  .map((text) => DropdownMenuItem(
-                                        value: text.kajiName,
-                                        child: Text(text.kajiName),
-                                      ))
-                                  .toList();
-                          //debugPrint(model.housework.toString());
-
-                          return DropdownButton<String>(
-                              items: lists,
-                              value: selectKaji,
-                              onChanged: (String? value) {
-                                model.selectKaji(value);
-                                selectKaji = value;
-                                model.fetchRouletteUser(value);
-                              });
-                        }
-                      },
-                    )),
-                  ),
+                  DropdownButton<String>(
+                      items: lists,
+                      value: selectKaji,
+                      onChanged: (String? value) {
+                        model.selectKaji(value);
+                        selectKaji = value;
+                        print("$value,$selectKaji");
+                      }),
                   const SizedBox(
                     height: 50,
                   ),
-
                   MyRoulette(
                     controller: RouletteController(vsync: this, group: group),
                     selectkaji: selectKaji,
@@ -134,7 +120,7 @@ class _RoulettPageState extends State<RoulettPage1>
                   ),
                   ElevatedButton(
                       onPressed: () {
-                        model.registerKaji(model.newkaji, model.groupId);
+                        model.registerKaji(model.selectkaji, model.groupId);
                       },
                       child: const Text("決定"))
                   //処理がうまくいけばshowdialogしてテキストを消す
@@ -175,6 +161,9 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
           final group = RouletteGroup(model.rouletteList);
           final lettecontroller = RouletteController(vsync: this, group: group);
+
+          print("ウィジェット${widget.selectkaji}");
+          //print("モデルカジ${selectKaji}");
 
           return Column(
             children: [
@@ -230,6 +219,7 @@ class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
                             TextButton(
                                 child: const Text("OK"),
                                 onPressed: () {
+                                  print("ok押下後${model.selectkaji}");
                                   model.registerPIC(
                                       result.randomValueInt, widget.selectkaji);
                                   Navigator.of(context, rootNavigator: true)
