@@ -109,9 +109,10 @@ class LoginModel extends ChangeNotifier {
       // print("アノニマス$uid");
       final userdoc =
           FirebaseFirestore.instance.collection('UserInfo').doc(uid);
+      String random = ("${Random().nextInt(100)}");
       return userdoc
           .set({
-            "name": "guest${Random().nextInt(100)}",
+            "name": "guest$random",
             "nigate": "皿洗い",
             "ticket": 1,
             "userId": uid,

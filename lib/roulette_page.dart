@@ -1,20 +1,21 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roulette/roulette.dart';
 import 'arrow.dart';
 import 'model/houseWork.dart';
 
-class RoulettPage extends StatefulWidget {
-  const RoulettPage({Key? key}) : super(key: key);
+class RoulettPage1 extends StatefulWidget {
+  const RoulettPage1({Key? key}) : super(key: key);
 
   @override
-  State<RoulettPage> createState() => _RoulettPageState();
+  State<RoulettPage1> createState() => _RoulettPageState();
 }
 
-class _RoulettPageState extends State<RoulettPage>
+class _RoulettPageState extends State<RoulettPage1>
     with TickerProviderStateMixin {
   static final _random = Random();
 
@@ -49,12 +50,13 @@ class _RoulettPageState extends State<RoulettPage>
     return ChangeNotifierProvider<HouseWorkModel>(
         create: (_) => HouseWorkModel()..fetchHousework(),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          String selectKaji = "";
+          String? selectKaji = model.selectkaji;
           List<HouseWork>? housework = model.housework;
           final usersInfo = housework;
           // RouletteGroup group = RouletteGroup(model.rouletteList);
           // _controller = RouletteController(vsync: this, group: group);
           // print("ハウスワーク:$housework");
+
           RouletteGroup group = RouletteGroup(model.rouletteList);
           if (housework == null) {
             return const Padding(
@@ -62,6 +64,12 @@ class _RoulettPageState extends State<RoulettPage>
               child: Center(child: CircularProgressIndicator()),
             );
           }
+          final List<DropdownMenuItem<String>> lists = model.housework!
+              .map((text) => DropdownMenuItem(
+                    value: text.kajiName,
+                    child: Text(text.kajiName),
+                  ))
+              .toList();
           return Expanded(
             child: Center(
               child: Column(
@@ -76,69 +84,21 @@ class _RoulettPageState extends State<RoulettPage>
                   const SizedBox(
                     height: 30,
                   ),
-                  SizedBox(
-                    width: 250,
-                    child: CupertinoButton.filled(
-                      child: model.housework != null
-                          ? Text("${housework[0].kajiName}")
-                          : Text("データがありません"),
-                      onPressed: () {
-                        showCupertinoModalPopup(
-                          context: context,
-                          builder: (_) => SizedBox(
-                            height: 350,
-                            width: double.infinity,
-                            child: CupertinoPicker(
-                              backgroundColor: Colors.grey,
-                              itemExtent: housework.length.toDouble(),
-                              scrollController:
-                                  FixedExtentScrollController(initialItem: 0),
-                              children: model.housework!
-                                  .map((kaji) => Text(
-                                        kaji.kajiName,
-                                        style: const TextStyle(fontSize: 32),
-                                      ))
-                                  .toList(),
-                              onSelectedItemChanged: (index) {
-                                model.fetchRouletteUser(selectKaji);
-                                setState(() async {
-                                  this.index = index;
-                                  String selectKaji = housework[index].kajiName;
-                                  print("kajiindex$selectKaji");
-
-                                  group = RouletteGroup(model.rouletteList);
-                                  print("risuto${model.rouletteList}");
-                                  _controller = RouletteController(
-                                      vsync: this, group: group);
-                                });
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  DropdownButton<String>(
+                      items: lists,
+                      value: selectKaji,
+                      onChanged: (String? value) {
+                        model.selectKaji(value);
+                        selectKaji = value;
+                        print("$value,$selectKaji");
+                      }),
                   const SizedBox(
-                    height: 30,
+                    height: 50,
                   ),
                   MyRoulette(
-                    controller: _controller,
+                    controller: RouletteController(vsync: this, group: group),
                     selectkaji: selectKaji,
                   ),
-                  const SizedBox(
-                    height: 45,
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        var result = _controller.rollTo(
-                          1,
-                          clockwise: _clockwise,
-                          offset: Random().nextDouble(),
-
-                          //結果出力
-                        );
-                      },
-                      child: const Text("開始")),
                   const SizedBox(
                     height: 50,
                   ),
@@ -160,8 +120,7 @@ class _RoulettPageState extends State<RoulettPage>
                   ),
                   ElevatedButton(
                       onPressed: () {
-                        model.registerKaji(model.newkaji, model.groupId);
-                        kaji = "";
+                        model.registerKaji(model.selectkaji, model.groupId);
                       },
                       child: const Text("決定"))
                   //処理がうまくいけばshowdialogしてテキストを消す
@@ -179,8 +138,8 @@ class _RoulettPageState extends State<RoulettPage>
   }
 }
 
-class MyRoulette extends StatelessWidget {
-  const MyRoulette({
+class MyRoulette extends StatefulWidget {
+  MyRoulette({
     Key? key,
     required this.controller,
     required this.selectkaji,
@@ -190,38 +149,114 @@ class MyRoulette extends StatelessWidget {
   final String? selectkaji;
 
   @override
+  _MyRouletteState createState() => _MyRouletteState();
+}
+
+class _MyRouletteState extends State<MyRoulette> with TickerProviderStateMixin {
+  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<HouseWorkModel>(
-        create: (_) => HouseWorkModel()..fetchRouletteUser(selectkaji),
+        create: (_) =>
+            HouseWorkModel()..fetchRouletteUserindex(widget.selectkaji),
         child: Consumer<HouseWorkModel>(builder: (context, model, child) {
-          List<HouseWork>? housework = model.housework;
+          final group = RouletteGroup(model.rouletteList);
+          final lettecontroller = RouletteController(vsync: this, group: group);
 
-          RouletteGroup group = RouletteGroup(model.rouletteList);
+          print("ウィジェット${widget.selectkaji}");
+          //print("モデルカジ${selectKaji}");
 
-          //_controller = RouletteController(vsync: this, group: group);
-          return Stack(
-            alignment: Alignment.topCenter,
+          return Column(
             children: [
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 30),
-                  child: Roulette(
-                    // Provide controller to update its state
-                    controller: controller,
-                    // Configure roulette's appearance
-                    style: const RouletteStyle(
-                      dividerThickness: 4,
-                      textLayoutBias: .8,
-                      centerStickerColor: Color(0xFF45A3FA),
+              Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  SizedBox(
+                    width: 300,
+                    height: 300,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Roulette(
+                        controller: lettecontroller,
+                        style: const RouletteStyle(
+                          dividerThickness: 3,
+                          textLayoutBias: 0.9,
+                          centerStickerColor: Color(0xFF45A3FA),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const Arrow(),
+                ],
               ),
-              const Arrow(),
+              const SizedBox(
+                height: 35,
+              ),
+              widget.selectkaji == null
+                  ? const Text("家事を選択してください",
+                      style: TextStyle(
+                          color: Colors.purple,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold))
+                  : ElevatedButton(
+                      onPressed: () async {
+                        var result = RandomUnion(group.units.length);
+                        print(
+                            "押下後,グループユニット${group.units}:トータルウェイト${group.totalWeights}:結果の数${result.randomValueInt}:結果の数の少数${result.randomValueUnderPoint}");
+
+                        await lettecontroller
+                            .rollTo(
+                              result.randomValueInt,
+                              clockwise: true,
+                              offset: result.randomValueUnderPoint,
+                            )
+                            .then((_) => {
+                                  // ルーレットが止まった時の処理
+                                  debugPrint(result.randomValue.toString())
+                                  //showdailogで決まった人を表示。その後OKボタンでfirestoreのhistoryに保存。
+                                });
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) {
+                            return AlertDialog(
+                              title: const Text("登録完了"),
+                              content: const Text("家事分担の登録できました"),
+                              actions: [
+                                TextButton(
+                                    child: const Text("OK"),
+                                    onPressed: () {
+                                      print("ok押下後${model.selectkaji}");
+                                      model.registerPIC(result.randomValueInt,
+                                          widget.selectkaji);
+                                      Navigator.of(context, rootNavigator: true)
+                                          .pop();
+                                    }),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: const Text("開始")),
             ],
           );
         }));
+  }
+}
+
+class RandomUnion {
+  // ランダムな数値 例：最大値＝6 の場合 0.0 <= randomValue < 6.0
+  double randomValue = 0.0;
+
+  // ランダムな数値の整数部のみ
+  int randomValueInt = 0;
+  // ランダムな数値の小数点以下
+  double randomValueUnderPoint = 0.0;
+
+  /// コンストラクター
+  /// 最大値を渡す。例：最大値＝6 の場合 0.0 <= randomValue < 6.0
+  RandomUnion(int lessThanValue) {
+    randomValue = lessThanValue * Random().nextDouble();
+    randomValueInt = randomValue.toInt();
+    randomValueUnderPoint = randomValue - randomValueInt;
   }
 }

@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:profiele_web/login_page.dart';
+
 import 'package:profiele_web/roulette_page.dart';
-import 'package:profiele_web/roulette_page1.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -140,9 +140,13 @@ class Profile extends StatelessWidget {
     return ChangeNotifierProvider<UserInfoModel>(
         create: (_) => UserInfoModel()..fetchUser(),
         child: Consumer<UserInfoModel>(builder: (context, model, child) {
-          final todayPIC = model.todayPIC;
-          print("todayPIC$todayPIC");
-          if (model == null) {
+          final currentUser = model.currentUser;
+          final UserName = model.name;
+          final name = model.fetchMyPIC(UserName);
+
+          print("UserName:$UserName");
+
+          if (currentUser == null) {
             return const Padding(
               padding: EdgeInsets.all(50),
               child: Center(child: CircularProgressIndicator()),
@@ -172,55 +176,47 @@ class Profile extends StatelessWidget {
                       height: 50,
                     ),
                     const Text("今日の割り振り家事"),
-                    //historyからカレントユーザーの情報をとってきてリスト表示。
-                    FutureBuilder(
-                        future: model.fetchMyPIC(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<void> snapshot) {
-                          // 通信中はローディングのぐるぐるを表示
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
+                    Consumer<UserInfoModel>(builder: (context, model, child) {
+                      try {
+                        model.fetchMyPIC(model.name);
 
-                          // 通信が失敗した場合
-                          if (snapshot.hasError) {
-                            return Center(
-                              child: Text(snapshot.error.toString()),
-                            );
-                          }
+                        final todayPIC = model.todayPIC;
 
-                          // snapshot.dataにデータが格納されていれば
-                          if (snapshot.hasData == false) {
-                            return Center(
-                                child: Text(snapshot.error.toString()));
-                          }
+                        if (todayPIC.isEmpty) {
+                          throw const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Text("今日の担当はありません"),
+                            ),
+                          );
+                        }
 
-                          return Center(
-                            child: SizedBox(
-                              height: 350,
-                              width: double.infinity,
-                              child: ListView.builder(
+                        return Center(
+                          child: SizedBox(
+                            height: 350,
+                            width: double.infinity,
+                            child: ListView.builder(
                                 itemCount: todayPIC.length,
                                 itemBuilder: (BuildContext context, int index) {
                                   bool isComplite = todayPIC[index].isComplite;
                                   int snapIndex =
                                       todayPIC.indexOf(todayPIC[index]);
+
                                   return ListTile(
-                                    title: Text(todayPIC[index].kajiName),
-                                    leading: isComplite == false
-                                        ? const Icon(
-                                            Icons.check_box_outline_blank)
-                                        : const Icon(Icons.check_box),
-                                    onTap: () {
-                                      showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (_) {
-                                            isComplite == true
-                                                ? AlertDialog(
+                                      title: Text(todayPIC[index].kajiName),
+                                      leading: isComplite == false
+                                          ? const Icon(
+                                              Icons.check_box_outline_blank)
+                                          : const Icon(Icons.check_box),
+                                      onTap: () {
+                                        isComplite != true
+                                            ? showDialog(
+                                                context: context,
+                                                barrierDismissible: false,
+                                                builder: (_) {
+                                                  print(isComplite);
+
+                                                  return AlertDialog(
                                                     title: const Text("完了チェック"),
                                                     content: const Text(
                                                         "家事は完了しましたか？"),
@@ -232,7 +228,12 @@ class Profile extends StatelessWidget {
                                                             final docId = model
                                                                 .todayPIC
                                                                 .elementAt(
-                                                                    index);
+                                                                    index)
+                                                                .pICId;
+                                                            print(
+                                                                "どっくID$docId");
+                                                            model.ComplitePIC(
+                                                                docId);
 
                                                             Navigator.of(
                                                                     context,
@@ -251,21 +252,37 @@ class Profile extends StatelessWidget {
                                                                 .pop();
                                                           }),
                                                     ],
-                                                  )
-                                                : AlertDialog(
+                                                  );
+                                                })
+                                            : showDialog(
+                                                context: context,
+                                                builder: (_) {
+                                                  print(isComplite);
+
+                                                  return const AlertDialog(
                                                     title: Text("完了済みです"),
                                                   );
-                                            return AlertDialog(
-                                              title: Text("完了済みです"),
-                                            );
-                                          });
-                                    },
-                                  );
-                                },
-                              ),
+                                                },
+                                              );
+                                      });
+                                }),
+                          ),
+                        );
+                      } catch (e) {
+                        debugPrint("エラーが発生しました${e.toString}");
+                        return Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Text("登録された家事はありません${e.toString}"),
+                              ],
                             ),
-                          );
-                        }),
+                          ),
+                        );
+                        //return Text("予期せぬエラーが発生しました${e.toString}");
+                      }
+                    }),
                     const SizedBox(
                       height: 25,
                     ),

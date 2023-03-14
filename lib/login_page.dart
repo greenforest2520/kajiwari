@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:profiele_web/main.dart';
-import 'package:profiele_web/rest_password.dart';
+
 
 import 'package:provider/provider.dart';
 
@@ -33,140 +33,39 @@ class LoginPage extends StatelessWidget {
               padding: EdgeInsets.only(
                 top: 100, /*bottom: bottomSpace*/
               ),
-              child: Center(
-                child: Consumer<LoginModel>(builder: (context, model, child) {
-                  return Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: SingleChildScrollView(
+              child: Consumer<LoginModel>(builder: (context, model, child) {
+                return Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: SingleChildScrollView(
+                        child: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Padding(
                                 padding: EdgeInsets.all(8.0),
                                 child: Text(
                                   "kajiwari",
-                                  style: TextStyle(fontSize: 35),
+                                  style: TextStyle(
+                                    fontSize: 35,
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.w300,
+                                  ),
                                 ),
                               ),
-                              // TextField(
-                              //   controller: model.mailController,
-                              //   decoration:
-                              //       const InputDecoration(hintText: "Email..."),
-                              //   onChanged: (text) {
-                              //     model.setEmail(text);
-                              //   },
-                              // ),
-                              // const SizedBox(
-                              //   height: 10,
-                              // ),
-                              // TextField(
-                              //   obscureText: true,
-                              //   controller: model.passwordController,
-                              //   decoration: const InputDecoration(
-                              //       hintText: "Password..."),
-                              //   onChanged: (text) {
-                              //     model.setPassword(text);
-                              //   },
-                              // ),
-                              // const SizedBox(
-                              //   height: 20,
-                              // ),
-                              // Row(
-                              //     mainAxisAlignment: MainAxisAlignment.center,
-                              //     children: [
-                              //       const Text("新規登録は"),
-                              //       TextButton(
-                              //         onPressed: () {
-                              //           Navigator.push(
-                              //               context,
-                              //               MaterialPageRoute(
-                              //                   builder: (context) =>
-                              //                       RegistrationPage()));
-                              //         },
-                              //         child: const Text("こちら"),
-                              //       )
-                              //     ]),
-                              // TextButton(
-                              //     onPressed: () {
-                              //       Navigator.push(
-                              //           context,
-                              //           MaterialPageRoute(
-                              //               builder: (context) =>
-                              //                   const ResetPasswordForm()));
-                              //     },
-                              //     child: const Text("パスワードを忘れた方")),
                               const SizedBox(
                                 height: 30,
                               ),
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    model.startLoading();
-                                    try {
-                                      await model.login();
-                                    } on FirebaseAuthException catch (e) {
-                                      if (e.code == 'user-not-found') {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                title: const Text("エラー"),
-                                                content: const Text(
-                                                    "メールアドレスが見つかりません"),
-                                                actions: [
-                                                  TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child: const Text("OK"))
-                                                ],
-                                              );
-                                            });
-                                      } else if (e.code == 'wrong-password') {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                title: const Text("エラー"),
-                                                content:
-                                                    const Text("パスワードが違います"),
-                                                actions: [
-                                                  TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child: const Text("OK"))
-                                                ],
-                                              );
-                                            });
-                                      }
-                                    } finally {
-                                      model.endLoading();
-                                    }
-                                  },
-                                  child: Container(
-                                      width: 200,
-                                      height: 50,
-                                      alignment: Alignment.center,
-                                      child: const Text(
-                                        'ログイン',
-                                        textAlign: TextAlign.center,
-                                      ))),
                               const SizedBox(
-                                height: 15,
+                                height: 35,
                               ),
                               ElevatedButton(
                                   onPressed: () async {
                                     try {
                                       await model.anonymousSignup();
                                       await model.insertGroup();
-                                      // Future.delayed(Duration(seconds: 1), () {
-                                      //   print("1秒後に実行");
-
-                                      // });
 
                                       print("ゲストログイン");
                                       if (model.anonymousSignup() != null) {
@@ -198,12 +97,12 @@ class LoginPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (model.isLoading)
-                        const Center(child: CircularProgressIndicator()),
-                    ],
-                  );
-                }),
-              ),
+                    ),
+                    if (model.isLoading)
+                      const Center(child: CircularProgressIndicator()),
+                  ],
+                );
+              }),
             ),
           ),
         ),

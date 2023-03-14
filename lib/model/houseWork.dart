@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:roulette/roulette.dart';
 
-import '../roulette_page1.dart';
+import '../roulette_page.dart';
 
 class HouseWork {
   String kajiName;
