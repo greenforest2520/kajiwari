@@ -26,26 +26,44 @@ class _CalenderState extends State<Calender> {
     super.initState();
 
     _selected = _focused;
-    _eventsList = {
-      DateTime.now().subtract(Duration(days: 2)): ['Test ei', 'Test Bi'],
-      DateTime.now(): ['Test Ci', 'Test Di', 'Test E', 'Test ehu'],
-    };
+    // _eventsList = {
+    //   DateTime.now().subtract(Duration(days: 2)): ['Test ei', 'Test Bi'],
+    //   DateTime.now(): ['Test Ci', 'Test Di', 'Test E', 'Test ehu'],
+    // };
   }
 
   @override
   Widget build(BuildContext context) {
-    final _events = LinkedHashMap<DateTime, List>(
-      equals: isSameDay,
-      hashCode: getHashCode,
-    )..addAll(_eventsList);
+    // final _events = LinkedHashMap<DateTime, List>(
+    //   equals: isSameDay,
+    //   hashCode: getHashCode,
+    // )..addAll(_eventsList);
 
-    List getEvent(DateTime day) {
-      return _events[day] ?? [];
-    }
+    // List getEvent(DateTime day) {
+    //   return _events[day] ?? [];
+    // }
 
     return ChangeNotifierProvider<HistoryModel>(
-        create: (_) => HistoryModel()..fetchHistory(),
+        create: (_) => HistoryModel()..fetchFromFirebaseEvent(),
         child: Consumer<HistoryModel>(builder: (context, model, child) {
+          print('firebaseList${model.eventMap}');
+
+          // final _eventsList = Map.fromIterables(model.eventList,key:(item)=>item.value:);
+          if (model.eventMap != null) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final _events = LinkedHashMap<DateTime, List>(
+            equals: isSameDay,
+            hashCode: getHashCode,
+          )..addAll(model.eventMap);
+
+          List getEvent(DateTime day) {
+            return _events[day] ?? [];
+          }
+
           return Expanded(
             child: Column(children: [
               TableCalendar(

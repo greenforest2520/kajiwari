@@ -24,14 +24,33 @@ class HistoryModel extends ChangeNotifier {
       .collection("history")
       .where("groupId", isEqualTo: "guestGroup");
 
-  List<History>? history;
+  List<History>? event;
 
-  Map<DateTime, List> eventList = {};
+  List<History>? eventList;
 
-  void fetchCalendarEvent() async {
+  Map<DateTime, List> eventMap = {};
+
+  void fetchFromFirebaseEvent() async {
     try {
       final QuerySnapshot historySnapshot = await _historyCollection.get();
-      final List<History> history =
+
+      final Map<DateTime, List> eventMap = Map.fromIterable(
+          historySnapshot.docs.map((item) =>
+              {'date': item['date'], 'kajiName': item['kajiName'].toString()}),
+          key: (item) => item['date'],
+          value: (item) => [item['kajiName']]);
+
+      // final Map<DateTime, List> eventMap1 = {
+      //   for (var item in historySnapshot.docs.map((item) =>
+      //       {'dateTime': DateTime.parse(item['datetime']), 'value': item['value']}))
+      //     item['dateTime']: [item['value']]
+      // };
+      this.eventMap = eventMap;
+
+      print('snapshot$eventMap');
+      notifyListeners();
+
+      final List<History> event =
           historySnapshot.docs.map((DocumentSnapshot document) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         final Timestamp date = data["date"];
@@ -41,16 +60,17 @@ class HistoryModel extends ChangeNotifier {
         final String kajiName = data["kajiName"];
         final String userName = data["userName"];
         final String pICId = data["PICId"];
-        return eventList(date: day, {
+        return History(
+          date: day,
           isComplite: isComplite,
           groupId: groupId,
           kajiName: kajiName,
           userName: userName,
           pICId: pICId,
-        });
+        );
       }).toList();
-      this.history = history;
-      print("historyfetchできた$history");
+      this.eventList = event;
+      print("historyfetchできた$eventList");
       notifyListeners();
     } catch (e) {
       print("historyFetchエラー${e.toString}");
