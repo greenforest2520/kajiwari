@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class History {
   DateTime date;
@@ -19,61 +21,74 @@ class History {
       required this.pICId});
 }
 
-class HistoryModel extends ChangeNotifier {
+class Event {
+  final String id;
+  final String title;
+  final bool isComplite;
+  final String userName;
+  final DateTime date;
+  Event(
+      {required this.id,
+      required this.title,
+      required this.isComplite,
+      required this.userName,
+      required this.date});
+}
+
+class EventProvider extends ChangeNotifier {
   final _historyCollection = FirebaseFirestore.instance
       .collection("history")
       .where("groupId", isEqualTo: "guestGroup");
 
-  List<History>? event;
+  List<Event> _events = [];
 
-  List<History>? eventList;
+  List<Event> get events => _events;
 
-  Map<DateTime, List> eventMap = {};
+  Map<DateTime, List<Event>> _eventsList = {};
 
-  void fetchFromFirebaseEvent() async {
-    try {
-      final QuerySnapshot historySnapshot = await _historyCollection.get();
+  CalendarFormat _calendarFormat = CalendarFormat.month;
 
-      final Map<DateTime, List> eventMap = Map.fromIterable(
-          historySnapshot.docs.map((item) =>
-              {'date': item['date'], 'kajiName': item['kajiName'].toString()}),
-          key: (item) => item['date'],
-          value: (item) => [item['kajiName']]);
+  int getHashCode(DateTime key) {
+    return key.day * 1000000 + key.month * 10000 + key.year;
+  }
 
-      // final Map<DateTime, List> eventMap1 = {
-      //   for (var item in historySnapshot.docs.map((item) =>
-      //       {'dateTime': DateTime.parse(item['datetime']), 'value': item['value']}))
-      //     item['dateTime']: [item['value']]
-      // };
-      this.eventMap = eventMap;
+  List getEvent(DateTime day) {
+    return _eventsList[day] ?? [];
+  }
 
-      print('snapshot$eventMap');
-      notifyListeners();
+  Map<DateTime, List<Event>> groupEvents(List<Event> events) {
+    final groupedEvents = LinkedHashMap<DateTime, List<Event>>(
+      equals: isSameDay,
+      hashCode: getHashCode,
+    )..addAll(_eventsList);
 
-      final List<History> event =
-          historySnapshot.docs.map((DocumentSnapshot document) {
-        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-        final Timestamp date = data["date"];
-        final DateTime day = date.toDate();
-        final bool isComplite = data["isComplite"];
-        final String groupId = data["groupId"];
-        final String kajiName = data["kajiName"];
-        final String userName = data["userName"];
-        final String pICId = data["PICId"];
-        return History(
-          date: day,
-          isComplite: isComplite,
-          groupId: groupId,
-          kajiName: kajiName,
-          userName: userName,
-          pICId: pICId,
-        );
-      }).toList();
-      this.eventList = event;
-      print("historyfetchできた$eventList");
-      notifyListeners();
-    } catch (e) {
-      print("historyFetchエラー${e.toString}");
+    for (final event in events) {
+      final key = DateTime(event.date.year, event.date.month, event.date.day);
+      if (groupedEvents.containsKey(key)) {
+        groupedEvents[key]?.add(event);
+      } else {
+        groupedEvents[key] = [event];
+      }
     }
+    return groupedEvents;
+  }
+
+  Future<List<Event>> fetchEvents() async {
+    final _historyCollection = await FirebaseFirestore.instance
+        .collection("history")
+        .where("groupId", isEqualTo: "guestGroup")
+        .get();
+    final events = _historyCollection.docs
+        .map((doc) => Event(
+            id: doc.id,
+            title: doc['kajiName'],
+            date: (doc['date'] as Timestamp).toDate(),
+            isComplite: doc['isComplite'],
+            userName: doc['userName']))
+        .toList();
+    _events = events;
+    _eventsList = groupEvents(events);
+    notifyListeners();
+    return events;
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:profiele_web/model/history.dart';
@@ -7,62 +8,28 @@ import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Calender extends StatefulWidget {
+  const Calender({super.key});
+
   @override
   State<Calender> createState() => _CalenderState();
 }
 
 class _CalenderState extends State<Calender> {
-  Map<DateTime, List> _eventsList = {};
+  Map<DateTime, List<Event>> _eventsList = {};
 
   DateTime _focused = DateTime.now();
-  DateTime? _selected;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  int getHashCode(DateTime key) {
-    return key.day * 1000000 + key.month * 10000 + key.year;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _selected = _focused;
-    // _eventsList = {
-    //   DateTime.now().subtract(Duration(days: 2)): ['Test ei', 'Test Bi'],
-    //   DateTime.now(): ['Test Ci', 'Test Di', 'Test E', 'Test ehu'],
-    // };
-  }
+  DateTime? _selected = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
-    // final _events = LinkedHashMap<DateTime, List>(
-    //   equals: isSameDay,
-    //   hashCode: getHashCode,
-    // )..addAll(_eventsList);
-
-    // List getEvent(DateTime day) {
-    //   return _events[day] ?? [];
-    // }
-
-    return ChangeNotifierProvider<HistoryModel>(
-        create: (_) => HistoryModel()..fetchFromFirebaseEvent(),
-        child: Consumer<HistoryModel>(builder: (context, model, child) {
-          print('firebaseList${model.eventMap}');
-
-          // final _eventsList = Map.fromIterables(model.eventList,key:(item)=>item.value:);
-          if (model.eventMap != null) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          final _events = LinkedHashMap<DateTime, List>(
-            equals: isSameDay,
-            hashCode: getHashCode,
-          )..addAll(model.eventMap);
-
-          List getEvent(DateTime day) {
-            return _events[day] ?? [];
-          }
+    return ChangeNotifierProvider<EventProvider>(
+        create: (_) => EventProvider()..fetchEvents(),
+        child: Consumer<EventProvider>(builder: (context, model, child) {
+          // if (model.events != null) {
+          //   return const Center(
+          //     child: CircularProgressIndicator(),
+          //   );
+          // }
 
           return Expanded(
             child: Column(children: [
@@ -84,7 +51,7 @@ class _CalenderState extends State<Calender> {
                   }
                 },
                 eventLoader: (date) {
-                  return getEvent(date);
+                  return model.getEvent(date);
                 },
                 focusedDay: _focused,
                 calendarBuilders: CalendarBuilders(
@@ -109,7 +76,8 @@ class _CalenderState extends State<Calender> {
               ),
               ListView(
                 shrinkWrap: true,
-                children: getEvent(_selected!)
+                children: model
+                    .getEvent(_selected!)
                     .map((event) => Card(
                           child: ListTile(
                             title: Text(event.toString()),

@@ -273,10 +273,16 @@ class Profile extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.all(20.0),
                           child: Center(
-                            child: Column(
-                              children: [
-                                Text("登録された家事はありません${e.toString}"),
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "登録された家事はありません",
+                                    style: TextStyle(color: Colors.deepPurple),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );
