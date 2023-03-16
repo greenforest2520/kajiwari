@@ -26,6 +26,8 @@ class HelpPage extends StatelessWidget {
             ),
             Text("家事分担をルーレットで決める「kajiwari」"),
             Text("家事をする人をルーレットで決めます"),
+            Text("ゲストグループに入っているguestユーザー内でルーレットを組み、"),
+            Text("割り当てられた家事をassignment、calendarで確認できます")
             // Text("家事をルーレットで決めずに率先して登録した場合"),
             // Text("そのアカウントに「率先チケット」が与えられます"),
             // Text("そのチケットが3枚溜まるとひとつの家事をスキップできます!")
