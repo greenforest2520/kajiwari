@@ -52,7 +52,7 @@ class EventProvider extends ChangeNotifier {
     return key.day * 1000000 + key.month * 10000 + key.year;
   }
 
-  List getEvent(DateTime day) {
+  List<Event> getEvent(DateTime day) {
     return _eventsList[day] ?? [];
   }
 
@@ -60,7 +60,7 @@ class EventProvider extends ChangeNotifier {
     final groupedEvents = LinkedHashMap<DateTime, List<Event>>(
       equals: isSameDay,
       hashCode: getHashCode,
-    )..addAll(_eventsList);
+    );
 
     for (final event in events) {
       final key = DateTime(event.date.year, event.date.month, event.date.day);

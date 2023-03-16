@@ -80,9 +80,11 @@ class _CalenderState extends State<Calender> {
                     .getEvent(_selected!)
                     .map((event) => Card(
                           child: ListTile(
-                            title: Text(event.toString()),
-                            subtitle: Text(event.toString()),
-                            trailing: const Icon(Icons.check_box),
+                            title: Text(event.title.toString()),
+                            subtitle: Text(event.userName.toString()),
+                            trailing: event.isComplite != false
+                                ? const Icon(Icons.check_box)
+                                : const Icon(Icons.check_box_outline_blank),
                           ),
                         ))
                     .toList(),

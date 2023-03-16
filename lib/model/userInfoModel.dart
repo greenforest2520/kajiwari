@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:profiele_web/model/history.dart';
 
 class UserInfoModel extends ChangeNotifier {
-  String name = "";
-  String nigate = "";
+  String? name;
+  String? nigate;
   int ticket = 0;
-  String userId = "";
-  String groupName = "";
+  String? userId;
+  String? groupName;
   bool? isComplite;
   String PICId = "";
   final currentUser = FirebaseAuth.instance.currentUser;
@@ -20,6 +20,12 @@ class UserInfoModel extends ChangeNotifier {
     isComplite = true;
   }
 
+  Future updateName(name) {
+    this.name = name;
+    notifyListeners();
+    return name;
+  }
+
   Future<void> fetchUser() async {
     if (currentUser != null) {
       print(currentUser!.uid);
@@ -29,32 +35,34 @@ class UserInfoModel extends ChangeNotifier {
           .get();
       final data = snapshot.data();
 
-      name = data!["name"];
-      nigate = data["nigate"];
-      ticket = data["ticket"];
-      userId = data["userId"];
-      groupName = data["groupName"];
+      final String name = data!["name"];
+      final String nigate = data["nigate"];
+      final int ticket = data["ticket"];
+      final String userId = data["userId"];
+      final String groupName = data["groupName"];
 
       print(name + nigate + ticket.toString() + userId + groupName);
-      name = name;
-      nigate = nigate;
-      ticket = ticket;
-      userId = userId;
+      this.name = name;
+      this.nigate = nigate;
+      this.ticket = ticket;
+      this.userId = userId;
+      notifyListeners();
+
+      await fetchMyPIC(name);
     }
-    notifyListeners();
   }
 
-  Future<void> fetchMyPIC(String name) async {
-    try {
-      final myPICSnapshot = await FirebaseFirestore.instance
-          .collection("history")
-          .where("userName", isEqualTo: name)
-          //.where("date", isEqualTo: Timestamp.now())
-          .get();
+  Future<void> fetchMyPIC(name) async {
+    await FirebaseFirestore.instance
+        .collection("history")
+        .where("userName", isEqualTo: name)
+        //.where("date", isEqualTo: Timestamp.now())
+        .get()
+        .then((snapshot) {
       print("fetch名前$name");
 
       final List<History> todayPIC =
-          myPICSnapshot.docs.map((DocumentSnapshot document) {
+          snapshot.docs.map((DocumentSnapshot document) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
         final Timestamp date = data["date"];
@@ -70,20 +78,20 @@ class UserInfoModel extends ChangeNotifier {
             groupId: groupId,
             kajiName: kajiName,
             userName: userName,
-            pICId: PICId);
+            pICId: pICId);
       }).toList();
       //print("${TimeOfDay.now()},${Timestamp.now().toDate()}");
 
       this.todayPIC = todayPIC;
+      debugPrint("fetch結果,${todayPIC.toString()}");
       notifyListeners();
-    } catch (e) {
+    }).catchError((e) {
       print("fetchエラー:$e");
-    }
-
-    debugPrint("fetch結果${this.todayPIC.toString()},${todayPIC.toString()}");
+      debugPrint("fetch結果,${todayPIC.toString()}");
+    });
   }
 
-  Future<void> ComplitePIC(String PICId) async {
+  Future<void> complitePIC(String PICId) async {
     await FirebaseFirestore.instance.collection("history").doc(PICId).update({
       "isComplite": true,
     });

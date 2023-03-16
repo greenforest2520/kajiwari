@@ -232,7 +232,7 @@ class Profile extends StatelessWidget {
                                                                 .pICId;
                                                             print(
                                                                 "どっくID$docId");
-                                                            model.ComplitePIC(
+                                                            model.complitePIC(
                                                                 docId);
 
                                                             Navigator.of(
